@@ -2,7 +2,7 @@
   <div class="app">
     <h3>Plus-deskin ennakkotehtävä</h3>
     <h3>Eeva Sarlin</h3>
-    <h2>Tutki, miten paljon kuntasi päiväkodeissa on vieraskielisiä lapsia</h2>
+    <h2>Tutki, miten paljon kuntasi varhaiskasvatuksessa on vieraskielisiä lapsia</h2>
     <label for="kunta">Valitse kunta: </label>
     <select id="kunta" v-model="selectedKunta" @change="calculateSelectedKuntaPercentage">
       <option v-for="kunta in kuntas" :key="kunta.code" :value="kunta.code">
@@ -12,7 +12,7 @@
     <div class="results" v-if="percentage !== null">
       <p>
         <b>{{ selectedKuntaName }}: </b>
-        <span v-if="percentage === 0">Ei vieraskielisiä lapsia</span>
+        <span v-if="percentage === 0">Ei vieraskielisiä lapsia varhaiskasvatuksessa.</span>
         <span v-else>{{ percentage.toFixed(2) }}%</span>
       </p>
       <div class="progress-bar">
