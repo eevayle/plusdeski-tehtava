@@ -4,8 +4,8 @@
     <h3>Eeva Sarlin</h3>
     <h2>Tutki, miten paljon kuntasi päiväkodeissa on vieraskielisiä lapsia</h2>
     <label for="kunta">Valitse kunta: </label>
-    <select id="kunta" v-model="selectedKunta" @change="calculatePercentage">
-      <option v-for="(kunta, index) in kuntas" :key="index" :value="kunta.code">
+    <select id="kunta" v-model="selectedKunta" @change="calculateSelectedKuntaPercentage">
+      <option v-for="kunta in kuntas" :key="kunta.code" :value="kunta.code">
         {{ kunta.name }}
       </option>
     </select>
@@ -16,20 +16,19 @@
         <span v-else>{{ percentage.toFixed(2) }}%</span>
       </p>
       <div class="progress-bar">
-        <div :style="{ width: percentage + '%', backgroundColor: '#7C59FA' }" class="progress"></div>
+        <div :style="{ width: `${percentage}%`, backgroundColor: '#7C59FA' }" class="progress"></div>
       </div>
       <p>
         <b>Kansallinen keskiarvo: </b> 
-        <span> {{ nationalAverage.toFixed(2) }}%</span>
+        <span>{{ nationalAverage.toFixed(2) }}%</span>
       </p>
       <div class="progress-bar">
-        <div :style="{ width: nationalAverage + '%', backgroundColor: '#009CB5' }" class="progress"></div>
+        <div :style="{ width: `${nationalAverage}%`, backgroundColor: '#009CB5' }" class="progress"></div>
       </div>
-      <p style="font-weight: 800;"> Vertailun vuoksi muita relevantteja kuntia: </p>
-      <!-- Additional Progress Bars -->
-      <div v-for="(city, index) in additionalCities" :key="index" class="progress-container">
+      <p style="font-weight: 800;">Vertailun vuoksi muita relevantteja kuntia:</p>
+      <div v-for="city in additionalCities" :key="city.name" class="progress-container">
         <div class="progress-bar">
-          <div :style="{ width: city.percentage + '%', backgroundColor: city.color }" class="progress">
+          <div :style="{ width: `${city.percentage}%`, backgroundColor: city.color }" class="progress">
             <span class="progress-label other-kuntas">{{ city.name }}: {{ city.percentage.toFixed(2) }}%</span>
           </div>
         </div>
@@ -46,15 +45,19 @@ export default {
     const alueLabels = jsonData.dataset.dimension.Alue.category.label;
     const values = jsonData.dataset.value;
 
-    const kuntas = Object.entries(alueLabels).map(([code, name], index) => ({
-      code,
-      name,
-      total: parseInt(values[index * 2], 10),
-      foreign: parseInt(values[index * 2 + 1], 10)
-    })).slice(1); // Skip the national "SSS" entry
+    // Process kunta data
+    const kuntas = Object.entries(alueLabels)
+      .map(([code, name], index) => ({
+        code,
+        name,
+        total: parseInt(values[index * 2], 10),
+        foreign: parseInt(values[index * 2 + 1], 10)
+      }))
+      .slice(1); // Skip the national "SSS" entry
 
-    const additionalCitiesCodes = ["KU092", "KU049", "KU091", "KU853"];
-    const additionalCities = additionalCitiesCodes.map(code => {
+    // Additional cities for comparison
+    const additionalCityCodes = ["KU092", "KU049", "KU091", "KU853"];
+    const additionalCities = additionalCityCodes.map(code => {
       const city = kuntas.find(k => k.code === code);
       return {
         name: city.name,
@@ -64,7 +67,6 @@ export default {
     });
 
     return {
-      data: kuntas,
       kuntas,
       selectedKunta: null,
       percentage: null,
@@ -79,10 +81,12 @@ export default {
     },
   },
   methods: {
-    calculatePercentage() {
+    calculateSelectedKuntaPercentage() {
       const kuntaData = this.kuntas.find(k => k.code === this.selectedKunta);
       if (kuntaData) {
-        this.percentage = kuntaData.total > 0 ? (kuntaData.foreign / kuntaData.total) * 100 : 0;
+        this.percentage = kuntaData.total > 0 
+          ? (kuntaData.foreign / kuntaData.total) * 100 
+          : 0;
       }
     },
     calculateNationalAverage(values) {
@@ -96,7 +100,7 @@ export default {
 
 <style>
 h3 {
-  color:#694BD7
+  color: #694BD7;
 }
 
 select { 
@@ -151,5 +155,4 @@ label {
   color: white;
   font-size: smaller;
 }
-
 </style>
